@@ -30,7 +30,14 @@ public class JSONMarshalingHandlerImpl03 implements JSONMarshalingHandler{
 	private static final String VAR_PREFIX = "__";
 
 	@Override
-	public void addJSONMarshaling(ObjectSchema classSchema,	JDefinedClass classType, InstanceFactoryGenerator interfaceFactoryGenerator) {
+	public void addJSONMarshaling(ObjectSchema classSchema,	JDefinedClass classType, 
+			InstanceFactoryGenerator interfaceFactoryGenerator) {
+		addJSONMarshaling(classSchema, classType, interfaceFactoryGenerator, false);
+	}
+	
+	@Override
+	public void addJSONMarshaling(ObjectSchema classSchema,	JDefinedClass classType, 
+			InstanceFactoryGenerator interfaceFactoryGenerator, Boolean strict) {
 		// There is nothing to do for interfaces.
 		if(TYPE.INTERFACE == classSchema.getType()){
 			throw new IllegalArgumentException("Cannot add marshaling to an interface");
@@ -40,7 +47,10 @@ public class JSONMarshalingHandlerImpl03 implements JSONMarshalingHandler{
 		createGetJSONSchemaMethod(classType);
 
 		// Create a field to handle overflow from newer type definitions
-		JFieldVar extraFields = createMissingFieldField(classType);
+		if (strict==null || !strict) {
+			// TODO 'extraFields is not used.  Does this actually do anything?
+			JFieldVar extraFields = createMissingFieldField(classType);
+		}
 
 		// Create the init method
 		JMethod initMethod = createMethodInitializeFromJSONObject(classSchema, classType, interfaceFactoryGenerator);
@@ -48,7 +58,7 @@ public class JSONMarshalingHandlerImpl03 implements JSONMarshalingHandler{
 		createConstructor(classSchema, classType, initMethod);
 		
 		// Add the second method.
-		createWriteToJSONObject(classSchema, classType);
+		createWriteToJSONObject(classSchema, classType, strict);
 	}
 
 	JFieldVar createMissingFieldField(JDefinedClass classType) {
@@ -631,6 +641,16 @@ public class JSONMarshalingHandlerImpl03 implements JSONMarshalingHandler{
 	 * @return
 	 */
 	protected JMethod createWriteToJSONObject(ObjectSchema classSchema, JDefinedClass classType) {
+		return createWriteToJSONObject(classSchema, classType, false);
+	}
+	
+	/**
+	 * Create the write method, that pushes data to the JSONObject.
+	 * @param classSchema
+	 * @param classType
+	 * @return
+	 */
+	protected JMethod createWriteToJSONObject(ObjectSchema classSchema, JDefinedClass classType, Boolean strict) {
 		JMethod method = createBaseMethod(classSchema, classType, "writeToJSONObject");
 		JVar param = method.params().get(0);
 		JBlock body = method.body();
@@ -762,7 +782,9 @@ public class JSONMarshalingHandlerImpl03 implements JSONMarshalingHandler{
 										+ "' is required and cannot be null"));
 			}
 		}
-		createWriteExtraFields(classType, body, param);
+		if (strict==null || !strict) {
+			createWriteExtraFields(classType, body, param);
+		}
         // Always return the param
         body._return(param);
         return method;

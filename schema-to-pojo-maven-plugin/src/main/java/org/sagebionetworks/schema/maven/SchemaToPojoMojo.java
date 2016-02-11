@@ -59,6 +59,11 @@ public class SchemaToPojoMojo extends AbstractMojo {
     */
     private String createRegister;
     
+    /** 
+     * If false then create an extra Map in each object into which the parser puts extra content from the JSON
+     */
+    private Boolean strict;
+    
     
     /**
      * The project being built.
@@ -77,7 +82,7 @@ public class SchemaToPojoMojo extends AbstractMojo {
 			 HandlerFactoryImpl03 factory = new HandlerFactoryImpl03();
 			 // Generate the classes from their schemas.
 			StringBuilder tmplog = new StringBuilder();
-			SchemaToPojo.generatePojos(sourceDirectory, outputDirectory,createRegister, factory, tmplog);
+			SchemaToPojo.generatePojos(sourceDirectory, outputDirectory,createRegister, factory, strict, tmplog);
 			if (tmplog.length() > 0) {
 				getLog().info(tmplog.toString());
 			}

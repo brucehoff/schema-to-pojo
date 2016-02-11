@@ -317,7 +317,7 @@ public class PojoGeneratorDriverTest {
 //		Map<String, ObjectSchema> register = PojoGeneratorDriver.registerAllIdentifiedObjectSchemas(list);
 //		List<ObjectSchema> schemaList = PojoGeneratorDriver.findAndReplaceAllReferencesSchemas(register, list);
 		JCodeModel codeModel = new JCodeModel();
-		driver.createAllClasses(codeModel, list);
+		driver.createAllClasses(codeModel, list, false);
 	}
 	
 	@Test
@@ -620,7 +620,7 @@ public class PojoGeneratorDriverTest {
 			schemaList.add(schema);
 		}
 		JCodeModel codeModel = new JCodeModel();
-		driver.createAllClasses(codeModel, schemaList);
+		driver.createAllClasses(codeModel, schemaList, false);
 		// Get the class
 		JPackage _package = codeModel._package("");
 		JDefinedClass impl =  null;
@@ -672,7 +672,7 @@ public class PojoGeneratorDriverTest {
 			schemaList.add(schema);
 		}
 		JCodeModel codeModel = new JCodeModel();
-		driver.createAllClasses(codeModel, schemaList);
+		driver.createAllClasses(codeModel, schemaList, false);
 		// Get the class
 		JPackage _package = codeModel._package("");
 		JDefinedClass impl =  null;

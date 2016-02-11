@@ -45,6 +45,17 @@ public class PojoGeneratorDriver {
 	 * @throws ClassNotFoundException
 	 */
 	public void createAllClasses(JCodeModel codeModel,	List<ObjectSchema> list) throws ClassNotFoundException {
+		createAllClasses(codeModel, list, false);
+	}
+
+	/**
+	 * Create all POJOs from the list of root schemas
+	 * @param codeModel
+	 * @param list
+	 * @param registerClass
+	 * @throws ClassNotFoundException
+	 */
+	public void createAllClasses(JCodeModel codeModel,	List<ObjectSchema> list, Boolean strict) throws ClassNotFoundException {
 		// The first step is to register all named types and replace all references with
 		// concrete schemas.
 		list = preprocessSchemas(list);
@@ -56,7 +67,7 @@ public class PojoGeneratorDriver {
 		// Now recursively process all of the schema objects
 		for(ObjectSchema schema: list){
 			// Create each POJO
-			createPOJO(codeModel, schema, interfaceFactoryGenerator);
+			createPOJO(codeModel, schema, interfaceFactoryGenerator, strict);
 		}
 		// Last step is to build the factories.
 		interfaceFactoryGenerator.buildFactories();
@@ -70,7 +81,7 @@ public class PojoGeneratorDriver {
 	 * @return
 	 * @throws ClassNotFoundException
 	 */
-	public JDefinedClass createPOJO(JCodeModel codeModel, ObjectSchema schema, InstanceFactoryGenerator ifg) throws ClassNotFoundException{
+	public JDefinedClass createPOJO(JCodeModel codeModel, ObjectSchema schema, InstanceFactoryGenerator ifg, Boolean strict) throws ClassNotFoundException{
 		// First create the type for this schema
 		JType type = createOrGetType(codeModel, schema);
 		if(!(type instanceof JDefinedClass)) return null;
@@ -101,7 +112,7 @@ public class PojoGeneratorDriver {
 		}
 		if(TYPE.INTERFACE != schema.getType()){
 			// Add the JSON marshaling
-			factory.getJSONMArshalingHandler().addJSONMarshaling(schema, classType, ifg);
+			factory.getJSONMArshalingHandler().addJSONMarshaling(schema, classType, ifg, strict);
 			// Add hash and equals
 			factory.getHashAndEqualsHandler().addHashAndEquals(schema, classType);
 			//add the toString

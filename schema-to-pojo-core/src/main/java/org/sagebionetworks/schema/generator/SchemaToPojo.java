@@ -29,20 +29,40 @@ import com.sun.codemodel.writer.ProgressCodeWriter;
  */
 public class SchemaToPojo {
 	
+	
 	/**
 	 * Will read all schemas in the passed directory (or file) and create java files for each in the output directory.
 	 * All classes will be created using the provided package name.
 	 * 
 	 * @param schemaSource - can be single schema file or directory of schema files.
 	 * @param outputDir
-	 * @param tmplog
-	 * @param packageName
+	 * @param createRegister
+	 * @param factory
+	 * @param log
 	 * @throws IOException
-	 * @throws JSONException
 	 * @throws JSONObjectAdapterException
 	 * @throws ClassNotFoundException
 	 */
-	public static void generatePojos(File schemaSource, File outputDir, String createRegister, HandlerFactory factory, StringBuilder log)
+	public static void generatePojos(File schemaSource, File outputDir, String createRegister, HandlerFactory factory, StringBuilder log) 
+			throws IOException, JSONObjectAdapterException, ClassNotFoundException  {
+		generatePojos(schemaSource, outputDir, createRegister, factory, false, log);
+	}
+
+	/**
+	 * Will read all schemas in the passed directory (or file) and create java files for each in the output directory.
+	 * All classes will be created using the provided package name.
+	 * 
+	 * @param schemaSource - can be single schema file or directory of schema files.
+	 * @param outputDir
+	 * @param createRegister
+	 * @param factory
+	 * @param strict
+	 * @param log
+	 * @throws IOException
+	 * @throws JSONObjectAdapterException
+	 * @throws ClassNotFoundException
+	 */
+	public static void generatePojos(File schemaSource, File outputDir, String createRegister, HandlerFactory factory, Boolean strict, StringBuilder log)
 			throws IOException, JSONObjectAdapterException, ClassNotFoundException {
 		if(schemaSource == null) throw new IllegalArgumentException("schemaSource cannot be null");
 		if(outputDir == null) throw new IllegalArgumentException("outputDir cannot be null");
@@ -97,7 +117,7 @@ public class SchemaToPojo {
 		
 		// The drive does the recursive work and drives the handlers
 		PojoGeneratorDriver driver = new PojoGeneratorDriver(factory);
-		driver.createAllClasses(codeModel, schemaList);
+		driver.createAllClasses(codeModel, schemaList, strict);
 		
 		// When provided, create a register for all of the classes in the list.
 		if(createRegister != null){
